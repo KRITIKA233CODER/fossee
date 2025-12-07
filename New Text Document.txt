@@ -1,0 +1,275 @@
+Chemical Equipment Parameter Visualizer — analysis, feature set, implementation steps & AI prompt
+
+Thanks — I read your project brief (Intern Screening Task – Chemical Equipment Parameter Visualizer) and analysed it. Below I outline required + recommended features, a practical step-by-step implementation plan with milestones, API & data-model suggestions, UI component layout for both Web (React) and Desktop (PyQt5), testing/deployment notes, GitHub repo structure, README checklist, and a single ready-to-use AI prompt you can paste to an AI/code generator to implement the project. (Reference: your uploaded brief.) 
+
+532d6466-2f3d-43da-a452-cd5129a…
+
+1 — Core understanding (one-line)
+
+Build a hybrid application (React web + PyQt5 desktop) that uses a common Django + DRF backend to accept CSV uploads, parse & analyse chemical equipment parameters (Flowrate, Pressure, Temperature, Type, Name), persist recent uploads (last 5), expose summary APIs, and render tables + charts in both frontends; also generate PDF reports and secure with basic auth. 
+
+532d6466-2f3d-43da-a452-cd5129a…
+
+2 — Features
+Required (from brief)
+
+CSV upload (Web + Desktop) to backend.
+
+Django backend using Pandas to parse CSV and compute analytics.
+
+Data Summary API: total count, averages (Flowrate/Pressure/Temperature), distribution by equipment type.
+
+Visualization: Chart.js on web, Matplotlib on desktop.
+
+History management: store last 5 uploaded datasets with summary metadata.
+
+PDF report generation.
+
+Basic authentication (user login).
+
+Use SQLite for last 5 dataset storage.
+
+Use provided sample CSV for demo/testing. 
+
+532d6466-2f3d-43da-a452-cd5129a…
+
+Recommended (improves UX / robustness)
+
+File validation (columns + data types) with descriptive error messages.
+
+Pagination & sorting for data table (web & desktop).
+
+Interactive charts (tooltips, filtering by equipment type).
+
+Download processed CSV & download generated PDF.
+
+Background task for heavy processing (Celery optional — but can be omitted for screening task).
+
+Unit tests for backend endpoints and frontends' core logic.
+
+Dockerfiles for backend and web frontend for easy setup (optional).
+
+Simple role-based access (admin / viewer) — optional.
+
+3 — Data model (Django ORM)
+class Dataset(models.Model):
+    id = UUIDField(primary_key=True, default=uuid4)
+    filename = CharField(max_length=255)
+    uploaded_at = DateTimeField(auto_now_add=True)
+    uploaded_by = ForeignKey(User, null=True, on_delete=SET_NULL)
+    csv_file = FileField(upload_to='uploads/')  # optional store
+    total_rows = IntegerField()
+    avg_flowrate = FloatField()
+    avg_pressure = FloatField()
+    avg_temperature = FloatField()
+    type_distribution = JSONField()  # {"Pump": 12, "Valve": 5, ...}
+    summary_pdf = FileField(null=True, blank=True)  # generated PDF
+
+
+Keep only last 5 datasets: when saving a new Dataset, delete oldest if count > 5.
+
+4 — API design (Django REST Framework)
+
+Auth
+
+POST /api/auth/login/ → returns token / session
+
+POST /api/auth/logout/
+
+CSV upload & dataset
+
+POST /api/datasets/upload/
+
+form-data: file (CSV)
+
+response: dataset id + summary
+
+GET /api/datasets/ → list last 5 datasets (with summaries)
+
+GET /api/datasets/{id}/ → full dataset meta + download link for CSV
+
+GET /api/datasets/{id}/download-csv/ → raw CSV
+
+GET /api/datasets/{id}/report/ → PDF report (stream)
+
+Analytics / visualization endpoints
+
+GET /api/datasets/{id}/summary/ → JSON:
+
+{
+  "total_count": 100,
+  "averages": {"flowrate": 12.3, "pressure": 1.2, "temperature": 45.6},
+  "type_distribution": {"Pump": 40, "Valve": 30, "Reactor": 30},
+  "min_max": { "flowrate": {"min": 0.1, "max": 100}, ... }
+}
+
+
+GET /api/datasets/{id}/table/?page=1&page_size=50&sort=flowrate&order=desc → paginated rows (for table view)
+
+5 — Frontend (UI) — Web (React + Chart.js)
+Pages / Components
+
+LoginPage — basic auth form.
+
+UploadPage — CSV drag & drop + file input, validation feedback.
+
+DashboardPage
+
+DatasetListPanel — last 5 uploads (cards with summary, view/download/report buttons).
+
+DataTable — paginated table of rows (columns: Equipment Name, Type, Flowrate, Pressure, Temperature). Search & sort.
+
+ChartsPanel
+
+Bar chart: equipment type distribution (Chart.js)
+
+Line / scatter chart: Flowrate vs Temperature or Pressure vs Flowrate
+
+Summary cards: total count, averages
+
+DatasetDetailModal — shows detailed summary + download/report.
+
+UX details
+
+Responsive layout, simple top nav with Upload / Dashboard / Logout.
+
+Use Axios for API calls, handle auth token in header.
+
+Chart interactions: click on a type to filter table.
+
+6 — Frontend (Desktop) — PyQt5 + Matplotlib
+Windows / Widgets
+
+LoginDialog — basic username/password dialog.
+
+MainWindow
+
+Left pane: Dataset list (last 5) as clickable items.
+
+Right/top: Upload button & status.
+
+Right/middle: TableView (QTableView) showing paginated rows, column sorting.
+
+Right/bottom: Matplotlib canvas with charts (same types as web — bar & scatter).
+
+Menu: Export CSV, Generate PDF Report, Logout.
+
+Implementation notes
+
+Use requests for API calls.
+
+Use pandas.read_csv locally for preview before upload (optional).
+
+Integrate Matplotlib with PyQt5 via FigureCanvasQTAgg.
+
+For export, request pre-generated PDF from backend.
+
+7 — Backend implementation plan (Django)
+Key modules
+
+datasets app: models, serializers, views, urls
+
+users app: simple auth (DRF token or session)
+
+analytics module: functions that use Pandas to compute summaries and validation
+
+reports module: uses reportlab or WeasyPrint to create PDF reports
+
+storage settings: media root for uploaded CSVs and generated PDFs
+
+CSV processing steps (on upload)
+
+Save incoming file to temp location.
+
+Validate columns: required ['Equipment Name','Type','Flowrate','Pressure','Temperature'] (case-insensitive).
+
+Use pandas to read CSV (pd.read_csv), coerce numeric types, drop/flag invalid rows.
+
+Compute summary: total_count, averages, min/max, std (optional), type distribution.
+
+Store CSV & summary into Dataset model.
+
+Generate PDF report (synchronously or asynchronously) and attach.
+
+Trim datasets table to last 5 entries.
+
+8 — PDF report contents
+
+Project title, upload timestamp, uploader name.
+
+Table: top 10 rows.
+
+Summary statistics section (totals, averages, min/max).
+
+Charts (bar chart for type distribution, line/scatter plot).
+
+Footer with page numbers & generation time.
+
+Use matplotlib to render charts into images and embed into PDF via reportlab or convert an HTML template to PDF via WeasyPrint.
+
+9 — Testing & QA
+
+Backend: unit tests for upload endpoint, validation logic, summary computation.
+
+API: test authentication flows and access control for download/report.
+
+Frontends: manual flow tests for upload → summary → charts → PDF download. Automated tests for React using Jest (basic).
+
+Cross-platform test for PyQt5 desktop on Windows/Linux (packaging with PyInstaller for submission optional).
+
+10 — Deployment & submission suggestions
+
+Deploy Django on Railway/Heroku or any cloud that supports SQLite (or switch to Postgres for production).
+
+React: static build served by Django or deployed on Netlify/Vercel that points to backend URL.
+
+Desktop: package the PyQt5 app using PyInstaller into a single exe for Windows or platform packages for Linux.
+
+Create a 2–3 minute demo video showing:
+
+Upload CSV (web), view summary & charts.
+
+Upload CSV (desktop), same summary & charts.
+
+Download PDF report and show last-5 dataset history.
+
+Put all source code in GitHub: /backend, /frontend-react, /desktop-pyqt.
+
+11 — GitHub repo structure (recommended)
+/chemical-equipment-visualizer
+  /backend                     # Django project
+    manage.py
+    requirements.txt
+    /core
+    /datasets
+    /users
+    README_BACKEND.md
+    Dockerfile
+  /frontend-react
+    package.json
+    src/
+    README_FRONTEND.md
+    Dockerfile
+  /desktop-pyqt
+    main.py
+    requirements.txt
+    README_DESKTOP.md
+  sample_equipment_data.csv
+  README.md                    # Project overview + setup + demo link
+  demo.mp4
+
+12 — README checklist (what to include)
+
+Project overview & architecture diagram.
+
+Prerequisites (Python version, Node version).
+
+Setup & run instructions for backend, web frontend, desktop frontend.
+
+How to run tests.
+
+How to build desktop executable (PyInstaller commands).
+
+Demo video link & sample CSV usage.
+
+License & contributors.

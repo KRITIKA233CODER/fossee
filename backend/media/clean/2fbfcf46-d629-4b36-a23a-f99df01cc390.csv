@@ -1,0 +1,11 @@
+equipment name,type,flowrate,pressure,temperature
+Pump A,Pump,12.5,3.2,45
+Valve B,Valve,0.0,5.1,28
+Reactor C,Reactor,18.2,1.8,90
+Cooler D,Cooler,5.6,2.0,15
+Pump E,Pump,20.1,3.6,55
+Valve F,Valve,0.0,4.9,30
+Heater G,Heater,7.2,1.2,120
+Reactor H,Reactor,22.3,2.5,88
+Pump I,Pump,15.0,3.0,49
+Filter J,Filter,4.1,1.1,20

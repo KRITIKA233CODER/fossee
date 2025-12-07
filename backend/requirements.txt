@@ -1,0 +1,9 @@
+Django>=3.2
+djangorestframework
+pandas
+reportlab
+matplotlib
+Pillow
+python-dotenv
+django-cors-headers
+djangorestframework-simplejwt
