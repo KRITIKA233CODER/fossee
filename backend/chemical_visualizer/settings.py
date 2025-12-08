@@ -5,7 +5,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-secret-key')
 DEBUG = True
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    "fosee-backend-dm3m.onrender.com",  # Render backend
+    "fosee.vercel.app",                 # Vercel frontend
+    "localhost",
+    "127.0.0.1",
+]
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -94,3 +100,12 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': False,
 }
+CORS_ALLOWED_ORIGINS = [
+    "https://fosee.vercel.app",
+    "http://localhost:5173",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://fosee-backend-dm3m.onrender.com",
+    "https://fosee.vercel.app",
+]
