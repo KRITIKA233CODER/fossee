@@ -137,4 +137,18 @@ class ApiClient:
                 for chunk in r.iter_content(1024 * 32):
                     f.write(chunk)
             return dest_path
-        raise Exception(r.text)
+        
+        err_msg = r.text[:200]
+        raise Exception(f"Failed to download report (HTTP {r.status_code}): {err_msg}")
+
+    def download_clean_csv(self, dataset_id: str, dest_path: str):
+        url = f'/api/datasets/{dataset_id}/download_clean/'
+        r = self._request('GET', url, stream=True)
+        if r.status_code == 200:
+            with open(dest_path, 'wb') as f:
+                for chunk in r.iter_content(1024 * 32):
+                    f.write(chunk)
+            return dest_path
+        
+        err_msg = r.text[:200]
+        raise Exception(f"Failed to download data (HTTP {r.status_code}): {err_msg}")

@@ -1,0 +1,110 @@
+.profile-dropdown {
+    position: relative;
+}
+
+.profile-trigger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 50%;
+    transition: all 200ms ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-trigger:hover {
+    background: rgba(167, 139, 250, 0.1);
+}
+
+.profile-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent) 0%, #d8b4fe 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a202c;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: var(--clay-shadow-sm);
+}
+
+.profile-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 240px;
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 0.75rem 0;
+    margin-top: 0.75rem;
+    box-shadow: var(--clay-shadow);
+    z-index: 1000;
+    animation: slideDownFade 300ms cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: top right;
+}
+
+@keyframes slideDownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.profile-info {
+    padding: 0.75rem 1.25rem;
+}
+
+.profile-name {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 0.95rem;
+}
+
+.profile-email {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    word-break: break-all;
+}
+
+.profile-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0.5rem 0;
+}
+
+.profile-item {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 200ms ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.profile-item:hover {
+    background: rgba(167, 139, 250, 0.1);
+    color: var(--accent);
+    padding-left: 1.5rem;
+}
+
+.profile-item.danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+}

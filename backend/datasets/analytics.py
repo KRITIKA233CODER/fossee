@@ -117,6 +117,21 @@ def generate_insights(df: pd.DataFrame):
     return insights
 
 
+def replace_special_floats(obj):
+    """
+    Recursively replace NaN/Infinity with None to ensure JSON compliance.
+    """
+    if isinstance(obj, float):
+        if np.isnan(obj) or np.isinf(obj):
+            return None
+        return obj
+    elif isinstance(obj, dict):
+        return {k: replace_special_floats(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [replace_special_floats(v) for v in obj]
+    return obj
+
+
 def analyze_dataframe(df: pd.DataFrame):
     df_clean = clean_dataframe(df)
     total = len(df_clean)
@@ -133,7 +148,7 @@ def analyze_dataframe(df: pd.DataFrame):
     }
     insights = generate_insights(df_clean)
 
-    return {
+    raw_analytics = {
         'row_count': int(total),
         'missing_values': missing,
         'stats': stats,
@@ -144,3 +159,6 @@ def analyze_dataframe(df: pd.DataFrame):
         'histograms': histograms,
         'insights': insights,
     }
+    
+    # Sanitize to ensure valid JSON for SQLite
+    return replace_special_floats(raw_analytics)

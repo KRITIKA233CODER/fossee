@@ -15,6 +15,8 @@ export default function DashboardPage() {
   const [showModal, setShowModal] = useState(false)
   const [activeTab, setActiveTab] = useState('datasets') // 'datasets' or 'analytics'
   const [analyticsDatasetId, setAnalyticsDatasetId] = useState('')
+  // Sidebar collapsed state (icons only)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   useEffect(() => {
     fetchDatasets()
@@ -51,25 +53,36 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard-layout mobile-stack">
-      {/* Sidebar */}
-      <aside className="sidebar">
+      {/* Sidebar (collapsible: click ☰ to expand labels) */}
+      <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+        <div className="sidebar-top">
+          <button className="sidebar-toggle" aria-label="Toggle sidebar" onClick={() => setSidebarCollapsed(s => !s)}>☰</button>
+        </div>
+
         <nav className="sidebar-nav">
           <div
             className={`sidebar-item ${activeTab === 'datasets' ? 'active' : ''} `}
             onClick={() => setActiveTab('datasets')}
             style={{ cursor: 'pointer' }}
+            title="Datasets"
           >
-            Datasets
+            <span className="sidebar-icon" aria-hidden>📚</span>
+            <span className="sidebar-label">Datasets</span>
           </div>
-          <Link to="/upload" className="sidebar-item">
-            Upload New
+
+          <Link to="/upload" className="sidebar-item" title="Upload New">
+            <span className="sidebar-icon" aria-hidden>⬆️</span>
+            <span className="sidebar-label">Upload New</span>
           </Link>
+
           <div
             className={`sidebar-item ${activeTab === 'analytics' ? 'active' : ''} `}
             onClick={() => setActiveTab('analytics')}
             style={{ cursor: 'pointer' }}
+            title="Analytics"
           >
-            Analytics
+            <span className="sidebar-icon" aria-hidden>📊</span>
+            <span className="sidebar-label">Analytics</span>
           </div>
         </nav>
       </aside>

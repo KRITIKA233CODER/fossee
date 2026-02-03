@@ -1,5 +1,8 @@
 from django.urls import path
-from .views import DatasetUploadView, DatasetListView, DatasetSummaryView, DatasetTableView, DatasetReportView, SignupView
+from .views import (
+    DatasetUploadView, DatasetListView, DatasetSummaryView, 
+    DatasetTableView, DatasetReportView, DatasetCleanDownloadView, SignupView
+)
 
 urlpatterns = [
     path('signup/', SignupView.as_view(), name='signup'),
@@ -9,4 +12,5 @@ urlpatterns = [
     path('datasets/<uuid:pk>/summary/', DatasetSummaryView.as_view(), name='dataset-summary'),
     path('datasets/<uuid:pk>/table/', DatasetTableView.as_view(), name='dataset-table'),
     path('datasets/<uuid:pk>/report/', DatasetReportView.as_view(), name='dataset-report'),
+    path('datasets/<uuid:pk>/download_clean/', DatasetCleanDownloadView.as_view(), name='dataset-download-clean'),
 ]

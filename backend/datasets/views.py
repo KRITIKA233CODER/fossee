@@ -50,6 +50,8 @@ class DatasetUploadView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             # log full traceback for server-side diagnosis
+            import traceback
+            traceback.print_exc()
             logger.exception('Processing error while handling uploaded CSV')
             return Response({'error': f'Processing error: {e}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -137,8 +139,47 @@ class DatasetReportView(APIView):
         except Dataset.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        if not d.summary_pdf or not os.path.exists(os.path.join(settings.MEDIA_ROOT, d.summary_pdf.name)):
-            return Response({'error': 'Report not found.'}, status=status.HTTP_404_NOT_FOUND)
+        file_path = None
+        if d.summary_pdf and os.path.exists(os.path.join(settings.MEDIA_ROOT, d.summary_pdf.name)):
+            file_path = os.path.join(settings.MEDIA_ROOT, d.summary_pdf.name)
+        
+        # If missing or force refresh (optional), regenerate
+        if not file_path or request.query_params.get('refresh') == 'true':
+            try:
+                print(f"[REGEN] Re-generating PDF for dataset {d.id}...")
+                if d.csv_file and os.path.exists(d.csv_file.path):
+                    import pandas as pd
+                    from .utils import create_pdf_report
+                    df = pd.read_csv(d.csv_file.path)
+                    new_pdf_path = create_pdf_report(d, df)
+                    d.summary_pdf.name = os.path.relpath(new_pdf_path, settings.MEDIA_ROOT).replace('\\', '/')
+                    d.save()
+                    file_path = new_pdf_path
+                else:
+                    return Response({'error': 'Source CSV missing, cannot regenerate.'}, status=status.HTTP_404_NOT_FOUND)
+            except Exception as e:
+                return Response({'error': f'Regeneration failed: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        file_path = os.path.join(settings.MEDIA_ROOT, d.summary_pdf.name)
-        return FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+        response = FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+        # Cleaner filename: strip existing .csv if present
+        clean_name = d.filename.replace('.csv', '') if d.filename else str(d.id)
+        response['Content-Disposition'] = f'attachment; filename="{clean_name}.pdf"'
+        return response
+
+
+class DatasetCleanDownloadView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, pk, format=None):
+        try:
+            d = Dataset.objects.get(pk=pk)
+        except Dataset.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        if not d.cleaned_csv or not os.path.exists(os.path.join(settings.MEDIA_ROOT, d.cleaned_csv.name)):
+            return Response({'error': 'Cleaned file not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        file_path = os.path.join(settings.MEDIA_ROOT, d.cleaned_csv.name)
+        response = FileResponse(open(file_path, 'rb'), content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="cleaned_{d.filename or d.id}.csv"'
+        return response
