@@ -54,8 +54,10 @@ fosee/
 - Both the Web and Desktop applications require authentication before accessing datasets and analytics.
 
 1. Web Login Interface
-2. Desktop Login Interface
-3. Authentication ensures controlled access and mirrors real-world system behavior.
+   ![Web Login](images/web-login.png)
+3. Desktop Login Interface
+   ![Desktop Login](images/desktop-login.png)
+5. Authentication ensures controlled access and mirrors real-world system behavior.
 
 ### 🌐 Web Application
 - Dashboard Overview
@@ -63,10 +65,12 @@ fosee/
    1. Total dataset count
    2. Storage usage
    3. List of recently uploaded datasets (limited to last 5)
+     ![Web Dashboard](images/web-dashboard.png)
 
 - CSV Upload (Web)
   1. Users can upload CSV files using a simple upload interface.
   2. Files are validated and processed by the Django backend using Pandas.
+     ![Web Upload](images/web-upload.png)
 
 - Analytics & Visualization (Web)
   1. Once processed, the application displays:
@@ -79,21 +83,26 @@ fosee/
   5. View analytics
   6. Download CSV
   7. Download PDF report
+     ![Web Analytics](images/web-analytics.png)
+
 
 ### 🖥️ Desktop Application (PyQt5)
 The desktop application provides the same core functionality as the web version, implemented using PyQt5 and Matplotlib.
 
 1. Recent Datasets View
   1. The dashboard lists recently uploaded datasets retrieved from the same backend API.
+     ![Desktop Dashboard](images/desktop-dashboard.png)
   2. CSV Upload (Desktop)
-  3. CSV files can be uploaded directly from the desktop interface and are processed by the shared backend.
-  4. Detailed Analytics & PDF Export (Desktop)
-  5. The analytics view displays:
-    1. Summary statistics
-    2. Parameter distributions
-    3. Correlation matrix
-    4. Analytical insights
-  6. Users can also export a PDF report containing these analytics.
+     ![Desktop Upload](images/desktop-upload.png)
+  3. The analytics view displays:
+     1. The analytics view displays:
+         1. Summary statistics
+         2. Parameter distributions
+         3. Correlation matrix
+         4. Analytical insights
+     2. Users can also export a PDF report containing these analytics.
+     ![Desktop Analytics](images/desktop-analytics.png)
+
 
 ### 📊 Backend Functionality
 The Django backend is responsible for:
@@ -104,7 +113,7 @@ The Django backend is responsible for:
 5. Serving REST APIs for both Web & Desktop
 6. Generating PDF reports
 7. All analytics are computed dynamically — no hardcoded data is used.
-
+  
 ### ▶️ Demo Video
 - A short demo video (2–3 minutes) demonstrating:
   1. Web application workflow
@@ -159,7 +168,7 @@ Valve B | Valve | 80 | 1.8 | 45
 
 ### 👩‍💻 Author
 
-Kritika Niranjan
+Kritika Niranjan Dangi
 B.Tech – Computer Science
 GitHub: https://github.com/KRITIKA233CODER
 
